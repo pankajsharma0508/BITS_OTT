@@ -1,0 +1,44 @@
+syntax = "proto2";
+package mediaprotos;
+
+message PublishRequest {
+    // content provider can send file_name and content to publish.
+    required string file_name = 1; 
+    required bytes file_content = 2;
+}
+
+message PublishResponse {
+    // publish response contains response type.
+    required string response = 1; 
+}
+
+message ContentRequest {
+    // client can pass search query to the service.
+    required string file_name = 1; 
+    required string client_ip =2;
+}
+
+message ContentResponse {
+    // search response contains data and response type.
+    required bytes file_content = 1;
+    required int32 status = 2;
+    required string server_ip =3;
+}
+
+message FileRequest {
+    // client can pass search query to the service.
+    required string file_name = 1; 
+    required string client_ip =2;
+}
+
+message FileResponse {
+    // search response contains data and response type.    
+    required int32 status = 1;
+    required string server_ip =2;
+}
+
+service MediaLibrary {
+    rpc getContent(ContentRequest) returns (ContentResponse);
+    rpc publishContent(PublishRequest) returns (PublishResponse);
+    rpc checkFileExists(FileRequest) returns (FileResponse);
+}
