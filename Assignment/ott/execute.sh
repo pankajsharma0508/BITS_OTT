@@ -7,6 +7,7 @@ sudo apt install python3
 apt-get install pip
 pip install grpcio
 pip install grpcio-tools
+pip install grpcio-testing
 
 
 echo "Start Media Library"
