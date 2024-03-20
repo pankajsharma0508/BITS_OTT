@@ -5,7 +5,8 @@ from file_manager import FileManager
 
 def main():
     # Get IP address from user input
-    ip_address= '172.31.15.9:6100'
+    #ip_address= '172.31.15.9:6100'
+    ip_address= 'localhost:5100'
     #ip_address = input("Enter client IP address with port (e.g., localhost:5100): ")
     print(f"Client started at {ip_address}")
 
