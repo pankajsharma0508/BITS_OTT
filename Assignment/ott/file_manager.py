@@ -8,6 +8,7 @@ class FileManager:
             files = os.listdir(abs_path)
             for file in files:
                 print(file)
+            return files
         except OSError as e:
             print(f"Error while listing files: {e}")
 
