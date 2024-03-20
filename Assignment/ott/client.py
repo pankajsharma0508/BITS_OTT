@@ -1,6 +1,6 @@
 import grpc
 from server_pb2_grpc import MediaLibraryStub
-from server_pb2 import ContentRequest,FileRequest,FileResponse
+from server_pb2 import ContentRequest
 from file_manager import FileManager
 
 def main():
@@ -33,18 +33,16 @@ def main():
 
         # Create request with the file name
         request = ContentRequest(file_name=file_name,client_ip = ip_address)
-        #request = FileRequest(file_name=file_name,client_ip = ip_address)
 
         try:
             # Send request to server
-            response = stub.getContent(request)
+            metadata = [('visited', '')]
+            response = stub.getContent(request, metadata=metadata)
             # Check response status
             if response.status == 200:                
                 print(f'File present on server {response.server_ip} start to download. Requesting server to transfer file to client {ip_address}')
-                #content_request = ContentRequest(file_name=file_name,client_ip = ip_address)
-                #content_response = stub.getContent(content_request)
                 FileManager.save_file_content(folder_path, file_name, response.file_content)
-                #FileManager.open_media_file_in_browser(folder_path, file_name)
+                FileManager.open_media_file_in_browser(folder_path, file_name)
             else:
                 print(f"File '{file_name}' not found on the server.")
         except grpc.RpcError as e:

@@ -1,4 +1,5 @@
-:: Start Media Librarystart cmd /k python .\server.py 
+:: Start Media Library
+start cmd /k python .\server.py
 
 :: Start Provider 
 start cmd /k python .\provider.py
