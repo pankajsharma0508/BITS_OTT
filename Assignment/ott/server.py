@@ -15,7 +15,7 @@ ip = socket.gethostbyname(socket.gethostname())
 port_number = 6100
 folder_path = "storage//server"
 
-ip_address = f"{ip}:{6100}" 
+ip_address = f"{ip}:{port_number}" 
 print(f"########## This is a Server Terminal running at {ip} ###############")
 
 replica_servers_address = input('Please provide server list ip list e.g. 192.0.0.1, 192.0.0.2:')
@@ -37,8 +37,8 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
                 # Log file not found as a warning
                 logging.warning(f'File {request.file_name} not found on any server')
                 return ContentResponse(file_content=b'', status=404, server_ip=ip_address)
-            else:
-                metadata['visited'] = value + ';' + ip_address
+            
+            updatedValue = value + ';' + ip_address
         
         logging.info(f"Request from client {request.client_ip} to serve file => {request.file_name}")
 
@@ -52,11 +52,11 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
                 return ContentResponse(file_content=content, status=200, server_ip=ip_address)
 
         print(f"File not found locally on current server {ip_address} attempting to retrieve file from other servers")
-        response = self.retrieve_file_from_other_servers(request, metadata)
+        response = self.retrieve_file_from_other_servers(request, updatedValue)
         if response:
             return response
     
-    def retrieve_file_from_other_servers(self, request, metadata):
+    def retrieve_file_from_other_servers(self, request, ips):
         file_found = False  
         current = server_list.head
         while current:
@@ -68,6 +68,7 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
                     channel = grpc.insecure_channel(ip)
                     stub = server_pb2_grpc.MediaLibraryStub(channel)
                     c_request = ContentRequest(file_name=request.file_name, client_ip=ip)
+                    metadata = [('visited', ips)]
                     c_response = stub.getContent(c_request, metadata=metadata)
                     if c_response.status == 200:
                         logging.info(f'File found on server {ip}, retrieving file {request.file_name}')
@@ -111,8 +112,6 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
 
 if __name__ == '__main__':
     # Start gRPC server
-    #ip_address = input("Enter  server IP address with port (e.g., localhost:5100): ")
-    #replica_servers_address = input("Enter comma seprated lis tof IP addresses with port  for nearest servers (e.g., localhost:5100,localhost:6100) ")
     local_File=FileManager.list_all_files_in_folder(folder_path)
 
     for file in local_File:
