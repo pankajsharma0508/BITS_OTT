@@ -5,11 +5,20 @@ from server_pb2 import PublishResponse, ContentResponse,ContentRequest,FileRespo
 from file_manager import FileManager
 import logging
 from Node import ServerLinkedList
+import socket
+
+# We assume that the port number for server to run is 6100.
 
 media_library = list()
-ip_address = 'localhost:5100'
-replica_servers_address = 'localhost:5100,'
+# using ip address of current machine.
+ip = socket.gethostbyname(socket.gethostname())
+port_number = 6100
 folder_path = "storage//server"
+
+ip_address = f"{ip}:{6100}" 
+print(f"########## This is a Server Terminal running at {ip} ###############")
+
+replica_servers_address = input('Please provide server list ip list e.g. 192.0.0.1, 192.0.0.2:')
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -30,7 +39,6 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
                 return ContentResponse(file_content=b'', status=404, server_ip=ip_address)
             else:
                 metadata['visited'] = value + ';' + ip_address
-        print(metadata)
         
         logging.info(f"Request from client {request.client_ip} to serve file => {request.file_name}")
 
@@ -52,7 +60,7 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
         file_found = False  
         current = server_list.head
         while current:
-            ip = current.ip
+            ip = f"{current.ip}:{port_number}" 
             #cost = current.cost
             if ip != ip_address:  # Check if IP hasn't been visited
                 logging.info(f'Connecting to remote server {ip} for file {request.file_name}')
