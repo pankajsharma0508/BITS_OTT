@@ -2,13 +2,16 @@ import grpc
 from server_pb2_grpc import MediaLibraryStub
 from server_pb2 import PublishRequest
 from file_manager import FileManager
+import socket
 
 def main():
-    # Get IP address from user input
-    #ip_address= '172.31.15.9:6100'
-    ip_address= 'localhost:5100'
-    #ip_address = input("Enter content provider IP address with port (e.g., localhost:5100): ")
-    print(f"Content Provider started at {ip_address}")
+    # Get IP address
+    ip = socket.gethostbyname(socket.gethostname())
+    port_number= 6100
+    ip_address= f"{ip}:{port_number}"
+
+    print("########## This is a Provider Terminal ###################")
+    print(f"Content Provider connected to server at at {ip_address}")
 
     # Initialize gRPC channel and stub
     channel = grpc.insecure_channel(ip_address)
