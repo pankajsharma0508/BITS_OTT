@@ -74,6 +74,7 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
                         logging.info(f'File found on server {ip}, retrieving file {request.file_name}')
                         FileManager.save_file_content(folder_path, request.file_name, c_response.file_content)
                         file_found = True
+                        media_library.append(request.file_name)
                         return c_response
                 except grpc.RpcError as e:
                     logging.error(f"Error connecting to server {ip}: {e}")
