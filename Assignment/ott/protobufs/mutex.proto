@@ -1,0 +1,20 @@
+message MutexAcquireRequest {
+    required string name = 1;
+}
+
+message MutexAcquireResponse {
+   required string name = 1;
+}
+
+message MutexReleaseRequest {
+    required string name = 1;
+}
+
+message MutexReleaseResponse {
+   required string name = 1;
+}
+
+service MutexManager {
+    rpc request_critical_section(MutexAcquireRequest) returns (MutexAcquireResponse);
+    rpc release_critical_section(MutexReleaseRequest) returns (MutexReleaseResponse);
+}
