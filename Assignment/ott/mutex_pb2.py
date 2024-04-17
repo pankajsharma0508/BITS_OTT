@@ -14,21 +14,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bmutex.proto\"#\n\x13MutexAcquireRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\"$\n\x14MutexAcquireResponse\x12\x0c\n\x04name\x18\x01 \x02(\t\"#\n\x13MutexReleaseRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\"$\n\x14MutexReleaseResponse\x12\x0c\n\x04name\x18\x01 \x02(\t2\xa0\x01\n\x0cMutexManager\x12G\n\x18request_critical_section\x12\x14.MutexAcquireRequest\x1a\x15.MutexAcquireResponse\x12G\n\x18release_critical_section\x12\x14.MutexReleaseRequest\x1a\x15.MutexReleaseResponse')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bmutex.proto\"/\n\x0cMutexRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x02(\x05\"\x1d\n\rMutexResponse\x12\x0c\n\x04name\x18\x01 \x02(\t2@\n\x11MutexCommunicator\x12+\n\nrequest_cs\x12\r.MutexRequest\x1a\x0e.MutexResponse')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'mutex_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MUTEXACQUIREREQUEST']._serialized_start=15
-  _globals['_MUTEXACQUIREREQUEST']._serialized_end=50
-  _globals['_MUTEXACQUIRERESPONSE']._serialized_start=52
-  _globals['_MUTEXACQUIRERESPONSE']._serialized_end=88
-  _globals['_MUTEXRELEASEREQUEST']._serialized_start=90
-  _globals['_MUTEXRELEASEREQUEST']._serialized_end=125
-  _globals['_MUTEXRELEASERESPONSE']._serialized_start=127
-  _globals['_MUTEXRELEASERESPONSE']._serialized_end=163
-  _globals['_MUTEXMANAGER']._serialized_start=166
-  _globals['_MUTEXMANAGER']._serialized_end=326
+  _globals['_MUTEXREQUEST']._serialized_start=15
+  _globals['_MUTEXREQUEST']._serialized_end=62
+  _globals['_MUTEXRESPONSE']._serialized_start=64
+  _globals['_MUTEXRESPONSE']._serialized_end=93
+  _globals['_MUTEXCOMMUNICATOR']._serialized_start=95
+  _globals['_MUTEXCOMMUNICATOR']._serialized_end=159
 # @@protoc_insertion_point(module_scope)

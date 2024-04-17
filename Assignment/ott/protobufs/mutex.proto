@@ -1,20 +1,14 @@
-message MutexAcquireRequest {
+syntax = "proto2";
+
+message MutexRequest {
     required string name = 1;
+    required int32 timestamp = 2;
 }
 
-message MutexAcquireResponse {
+message MutexResponse {
    required string name = 1;
 }
 
-message MutexReleaseRequest {
-    required string name = 1;
-}
-
-message MutexReleaseResponse {
-   required string name = 1;
-}
-
-service MutexManager {
-    rpc request_critical_section(MutexAcquireRequest) returns (MutexAcquireResponse);
-    rpc release_critical_section(MutexReleaseRequest) returns (MutexReleaseResponse);
+service MutexCommunicator {
+    rpc request_cs(MutexRequest) returns (MutexResponse);
 }

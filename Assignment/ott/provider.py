@@ -43,6 +43,7 @@ def main():
         content = FileManager.read_file_content(folder_path, file_name)
 
         # Create request to publish content
+        
         request = PublishRequest(file_name=file_name, file_content=content)
 
         try:
