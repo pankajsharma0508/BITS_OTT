@@ -14,17 +14,17 @@ class MutexCommunicatorStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.request_cs = channel.unary_unary(
-                '/MutexCommunicator/request_cs',
-                request_serializer=mutex__pb2.MutexRequest.SerializeToString,
-                response_deserializer=mutex__pb2.MutexResponse.FromString,
+        self.message = channel.unary_unary(
+                '/MutexCommunicator/message',
+                request_serializer=mutex__pb2.MessageRequest.SerializeToString,
+                response_deserializer=mutex__pb2.MessageResponse.FromString,
                 )
 
 
 class MutexCommunicatorServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def request_cs(self, request, context):
+    def message(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,10 +33,10 @@ class MutexCommunicatorServicer(object):
 
 def add_MutexCommunicatorServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'request_cs': grpc.unary_unary_rpc_method_handler(
-                    servicer.request_cs,
-                    request_deserializer=mutex__pb2.MutexRequest.FromString,
-                    response_serializer=mutex__pb2.MutexResponse.SerializeToString,
+            'message': grpc.unary_unary_rpc_method_handler(
+                    servicer.message,
+                    request_deserializer=mutex__pb2.MessageRequest.FromString,
+                    response_serializer=mutex__pb2.MessageResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -49,7 +49,7 @@ class MutexCommunicator(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def request_cs(request,
+    def message(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class MutexCommunicator(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/MutexCommunicator/request_cs',
-            mutex__pb2.MutexRequest.SerializeToString,
-            mutex__pb2.MutexResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/MutexCommunicator/message',
+            mutex__pb2.MessageRequest.SerializeToString,
+            mutex__pb2.MessageResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

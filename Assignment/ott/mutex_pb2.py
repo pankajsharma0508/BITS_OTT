@@ -14,17 +14,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bmutex.proto\"/\n\x0cMutexRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x02(\x05\"\x1d\n\rMutexResponse\x12\x0c\n\x04name\x18\x01 \x02(\t2@\n\x11MutexCommunicator\x12+\n\nrequest_cs\x12\r.MutexRequest\x1a\x0e.MutexResponse')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bmutex.proto\"C\n\x0eMessageRequest\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\ttimestamp\x18\x02 \x02(\x05\x12\x10\n\x08msg_type\x18\x03 \x02(\t\"\x1f\n\x0fMessageResponse\x12\x0c\n\x04name\x18\x01 \x02(\t2A\n\x11MutexCommunicator\x12,\n\x07message\x12\x0f.MessageRequest\x1a\x10.MessageResponse')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'mutex_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MUTEXREQUEST']._serialized_start=15
-  _globals['_MUTEXREQUEST']._serialized_end=62
-  _globals['_MUTEXRESPONSE']._serialized_start=64
-  _globals['_MUTEXRESPONSE']._serialized_end=93
-  _globals['_MUTEXCOMMUNICATOR']._serialized_start=95
-  _globals['_MUTEXCOMMUNICATOR']._serialized_end=159
+  _globals['_MESSAGEREQUEST']._serialized_start=15
+  _globals['_MESSAGEREQUEST']._serialized_end=82
+  _globals['_MESSAGERESPONSE']._serialized_start=84
+  _globals['_MESSAGERESPONSE']._serialized_end=115
+  _globals['_MUTEXCOMMUNICATOR']._serialized_start=117
+  _globals['_MUTEXCOMMUNICATOR']._serialized_end=182
 # @@protoc_insertion_point(module_scope)

@@ -1,14 +1,15 @@
 syntax = "proto2";
 
-message MutexRequest {
+message MessageRequest {
     required string name = 1;
     required int32 timestamp = 2;
+    required string msg_type = 3;
 }
 
-message MutexResponse {
+message MessageResponse {
    required string name = 1;
 }
 
 service MutexCommunicator {
-    rpc request_cs(MutexRequest) returns (MutexResponse);
+    rpc message(MessageRequest) returns (MessageResponse);
 }
