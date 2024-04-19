@@ -1,18 +1,17 @@
-
 class ListNode:
     def __init__(self, ip, cost):
         self.ip = ip
         self.cost = cost
         self.next = None
 
+
 class ServerLinkedList:
     def __init__(self, replica_servers):
         self.head = None
-        rserver_ip = replica_servers.split(',')
+        rserver_ip = replica_servers.split(",")
         for ip in rserver_ip:
-            if ip !="":
-                self.insert(ip,1)        
-        
+            if ip != "":
+                self.insert(ip, 1)
 
     def insert(self, ip, cost):
         new_node = ListNode(ip, cost)
@@ -31,3 +30,18 @@ class ServerLinkedList:
         while current:
             print(f"IP: {current.ip}, Cost: {current.cost}")
             current = current.next
+
+
+class MutexNode:
+    def __init__(self, ip, port, name):
+        self.ip = ip
+        self.port = port
+        self.name = name
+        self.address = f"{ip}:{port}"
+
+
+class MutexMessage:
+    def __init__(self, type, node, msg):
+        self.msg = msg
+        self.msg_type = type
+        self.node = node
