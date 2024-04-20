@@ -1,3 +1,6 @@
+import json
+
+
 class ListNode:
     def __init__(self, ip, cost):
         self.ip = ip
@@ -39,9 +42,25 @@ class MutexNode:
         self.name = name
         self.address = f"{ip}:{port}"
 
+    def to_json(self):
+        return {
+            "ip": self.ip,
+            "port": self.port,
+            "name": self.name,
+            "address": self.address,
+        }
+
 
 class MutexMessage:
     def __init__(self, type, node, msg):
         self.msg = msg
         self.msg_type = type
         self.node = node
+
+    def to_json(self):
+        json_string = {
+            "msg": self.msg,
+            "msg_type": self.msg_type,
+            "node": self.node.to_json(),
+        }
+        return json_string.encode("utf-8")
