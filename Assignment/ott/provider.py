@@ -1,31 +1,57 @@
+import json
 import grpc
+from data_structures import MutexNode
 from mutex_manager import MutexManager
 from communicator import Communicator
 from server_pb2_grpc import MediaLibraryStub
 from server_pb2 import PublishRequest
 from file_manager import FileManager
-import socket
 
 folder_path = "storage//provider"
+mutex_threads = list()
 
 
 class ContentProvider:
     def __init__(self):
-        self.ip = socket.gethostbyname(socket.gethostname())
-        self.port_number = 6100  # input("Please Enter the port_number")  # 6100
+        self.init_node_data()
         self.communicator = Communicator(
-            self.ip, self.port_number, msg_handler=self.msg_handler
+            self.node.ip, self.node.port, msg_handler=self.msg_handler
         )
-        # self.start_rpc()
+
         self.init_user_interface()
+        # self.start_rpc()
+        return
+
+    def init_node_data(self):
+        name = input("Please Enter the node name: ")
+        self.other_nodes = list()
+
+        with open("data.json", "r") as settings:
+            config = json.loads(settings.read())
+
+            # read server configuration
+            server = config["server"]
+            self.server_ip = server["ip"]
+            self.server_port = server["port"]
+
+            # read provider configuration
+            providers = list(config["providers"])
+            for index, node in enumerate(providers):
+                providerNode = MutexNode(
+                    ip=node["ip"], port=node["port"], name=node["name"]
+                )
+                if node["name"] == name:
+                    self.node = providerNode
+                else:
+                    self.other_nodes.append(providerNode)
 
     def start_rpc(self):
-        channel = grpc.insecure_channel(f"{self.ip}:{self.port_number}")
+        channel = grpc.insecure_channel(f"{self.server_ip}:{self.server_port}")
         self.media_library = MediaLibraryStub(channel)
 
     def init_user_interface(self):
         print("########## This is a Provider Terminal ###################")
-        print(f"Content Provider started at {self.ip}:{self.port_number}")
+        print(f"Provider ({self.node.name}) started at {self.node.ip}:{self.node.port}")
 
         while True:
             print("Following content files are ready to be published:")
@@ -39,12 +65,22 @@ class ContentProvider:
                 if file_name.lower() == "exit":
                     break
 
-                self.publish_content(file_name=file_name)
+                self.handle_user_request(file_name=file_name)
 
-    def handle_user_request(self):
-        mutex_manager = MutexManager()
+    def handle_user_request(self, file_name):
+        mutex_thread = MutexManager(
+            communicator=self.communicator,
+            node=self.node,
+            other_nodes=self.other_nodes,
+            task=self.publish_content,
+            input=[file_name],
+        )
+        mutex_thread.start()
+        mutex_threads.append(mutex_thread)
 
     def publish_content(self, file_name):
+        print(f"publish_content: {file_name}")
+        return
         try:
             # Read the content of the file
             content = self.read_file_if_exists(file_name)
@@ -66,7 +102,10 @@ class ContentProvider:
         return FileManager.read_file_content(folder_path, file_name)
 
     def msg_handler(message, clientAddress):
-        print("Message from ", clientAddress, ": ", message)
+        # response type: read the target from the msg
+        # look for the thread send message to handle.
+
+        print(f"Message from {clientAddress}: {message}")
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ class Communicator:
         serverSocket.bind(("", self.port))
         while True:
             message, clientAddress = serverSocket.recvfrom(2048)
-            self.msg_handler(message, clientAddress)
+            self.msg_handler(([message, clientAddress]))
             break
 
 

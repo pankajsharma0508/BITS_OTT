@@ -1,0 +1,23 @@
+{
+    "providers": [
+        {
+            "ip": "localhost",
+            "port": "6001",
+            "name": "P1"
+        },
+        {
+            "ip": "localhost",
+            "port": "6002",
+            "name": "P2"
+        },
+        {
+            "ip": "localhost",
+            "port": "6003",
+            "name": "P3"
+        }
+    ],
+    "server": {
+        "ip": "localhost",
+        "port": "12000"
+    }
+}

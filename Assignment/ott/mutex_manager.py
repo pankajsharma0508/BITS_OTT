@@ -16,22 +16,23 @@ ip_address = f"{ip}:{port_number}"
 
 
 class MutexManager(Thread):
-    def __init__(self, node, other_nodes, task, input):
+    def __init__(self, communicator, node, other_nodes, task, input):
         super().__init__(None, target=task, args=(input))
         print("Constructor")
-        listener = threading.Thread(target=self.msg_listener)
+        self.communicator = communicator
         self.request_pending = Queue()
         self.msg_queue = Queue()
         self.delay = delay_quantum
         self.node = node
         self.other_nodes = other_nodes
-        listener.start()
+        # listener = threading.Thread(target=self.msg_listener)
+        # listener.start()
 
     def msg_listener(self):
         print(f"Mutex provider started at {ip_address} ###############.")
         listeningSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # Bind the socket to the local address
-        listeningSocket.bind(("", self.node.port))
+        listeningSocket.bind(("", int(self.node.port)))
         while True:
             self.handle_message(listeningSocket.recv(Max_Msg_length))
 
@@ -66,25 +67,20 @@ class MutexManager(Thread):
         return
 
     def send_msg(self, node, message):
-        print(f"sending msg to node {node.name}")
-        # sendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # dictionary = message.__dict__
-        # json_string = json.dumps(dictionary)
-        # sendSocket.sendto(json_string.encode(), (node.ip, node.port))
-        # sendSocket.close()
+        print(message)
+        self.communicator.send_msg(message)
         return
 
     def request_cs(self):
         for node in self.other_nodes:
-            msg = MutexMessage(1, self.node, f"request from {self.name}")
-            self.send_msg(node=node, message=msg)
+            print(f"request from {self.name}")
+            msg = MutexMessage(1, self.node, f"request from {node.name}")
+            self.send_msg(node=node, message=f"request from {self.name}")
             self.request_pending.put(node)
 
     def ensure_all_response(self):
-        print("ensure_all_response")
-        return
         while True:
-            print(self.request_pending)
+            print(f"request_pending for {self.request_pending.qsize}")
             if self.request_pending:
                 time.sleep(delay_quantum)
             else:
@@ -102,28 +98,28 @@ def printThreadName(name):
     print(name)
 
 
-# node
-current_node = MutexNode(ip="localhost", port=6000, name="P1")
+# # node
+# current_node = MutexNode(ip="localhost", port=6000, name="P1")
 
-# other_nodes
-other_node1 = MutexNode(ip="localhost", port=6001, name="P2")
-other_node2 = MutexNode(ip="localhost", port=6002, name="P3")
+# # other_nodes
+# other_node1 = MutexNode(ip="localhost", port=6001, name="P2")
+# other_node2 = MutexNode(ip="localhost", port=6002, name="P3")
 
-thread1 = MediaProvider(
-    node=current_node,
-    other_nodes=[other_node1, other_node2],
-    task=printThreadName,
-    input=["mythread1"],
-)
+# thread1 = MediaProvider(
+#     node=current_node,
+#     other_nodes=[other_node1, other_node2],
+#     task=printThreadName,
+#     input=["mythread1"],
+# )
 
-# thread1 = threading.Thread(target=printThreadName, args=(["hello world"]))
+# # thread1 = threading.Thread(target=printThreadName, args=(["hello world"]))
 
-thread2 = MediaProvider(
-    node=other_node1,
-    other_nodes=[current_node, other_node2],
-    task=printThreadName,
-    input=["mythread2"],
-)
+# thread2 = MediaProvider(
+#     node=other_node1,
+#     other_nodes=[current_node, other_node2],
+#     task=printThreadName,
+#     input=["mythread2"],
+# )
 
 
 # thread3 = MediaProvider(
@@ -131,9 +127,9 @@ thread2 = MediaProvider(
 #     other_nodes=[current_node, other_node2],
 #     task=printThreadName("mythread3"),
 # )
-thread1.start()
-thread2.start()
+# thread1.start()
+# thread2.start()
 # thread3.start()
 
-thread1.join()
-thread2.join()
+# thread1.join()
+# thread2.join()
