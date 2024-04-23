@@ -16,25 +16,16 @@ ip_address = f"{ip}:{port_number}"
 
 
 class MutexManager(Thread):
-    def __init__(self, communicator, node, other_nodes, task, input):
-        super().__init__(None, target=task, args=(input))
+    def __init__(self, communicator, node, other_nodes, task, file_name):
+        super().__init__(None, target=task, args=([file_name]))
         print("Constructor")
         self.communicator = communicator
-        self.request_pending = Queue()
+        self.request_pending = dict()
         self.msg_queue = Queue()
         self.delay = delay_quantum
         self.node = node
         self.other_nodes = other_nodes
-        # listener = threading.Thread(target=self.msg_listener)
-        # listener.start()
-
-    def msg_listener(self):
-        print(f"Mutex provider started at {ip_address} ###############.")
-        listeningSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # Bind the socket to the local address
-        listeningSocket.bind(("", int(self.node.port)))
-        while True:
-            self.handle_message(listeningSocket.recv(Max_Msg_length))
+        self.file_name = file_name
 
     def handle_message(self, msg):
         if msg.msg_type == MSG_TYPE_REQUEST:  # request messages
@@ -49,7 +40,11 @@ class MutexManager(Thread):
         if msg.msg_type == MSG_TYPE_REPLY:  # reply messages
             print(f"<= Reply Message Recieved from {msg.node.name}")
             # remove from the pending set.
-            self.request_pending.remove()
+            key = msg.node.name
+            if key in self.request_pending:
+                del self.request_pending[key]
+                return
+            print(f"The key '{key}' does not exist in the dictionary.")
         return
 
     def run(self):
@@ -67,24 +62,26 @@ class MutexManager(Thread):
         return
 
     def send_msg(self, node, message):
-        print(message)
-        self.communicator.send_msg(message)
+        print(node, message)
+        self.communicator.send_msg(node, message)
         return
 
     def request_cs(self):
+        msg = MutexMessage(
+            1, self.node, f"request from {self.node.name}", file_name=self.file_name
+        )
         for node in self.other_nodes:
-            print(f"request from {self.name}")
-            msg = MutexMessage(1, self.node, f"request from {node.name}")
-            self.send_msg(node=node, message=f"request from {self.name}")
-            self.request_pending.put(node)
+            print(f"request from {self.node.name}")
+            self.send_msg(node=node, message=msg)
+            self.request_pending[node.name] = node
 
     def ensure_all_response(self):
         while True:
-            print(f"request_pending for {self.request_pending.qsize}")
+            print(f"request_pending for {self.request_pending.keys()}")
             if self.request_pending:
                 time.sleep(delay_quantum)
             else:
-                self.request_pending.get()
+                break
 
     def handle_queued_message(self):
         # msg = self.msg_queue.get()

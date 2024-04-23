@@ -50,17 +50,33 @@ class MutexNode:
             "address": self.address,
         }
 
+    @staticmethod
+    def prepare(json):
+        ip = json["ip"]
+        port = json["port"]
+        name = json["name"]
+        return MutexNode(ip=ip, port=port, name=name)
+
 
 class MutexMessage:
-    def __init__(self, type, node, msg):
+    def __init__(self, type, node, msg, file_name):
         self.msg = msg
         self.msg_type = type
         self.node = node
+        self.file_name = file_name
+
+    @staticmethod
+    def prepare(json):
+        file_name = json["file_name"]
+        msg = json["msg"]
+        msg_type = json["msg_type"]
+        node = MutexNode.prepare(json=json["node"])
+        return MutexMessage(msg=msg, node=node, type=msg_type, file_name=file_name)
 
     def to_json(self):
-        json_string = {
+        return {
             "msg": self.msg,
             "msg_type": self.msg_type,
+            "file_name": self.file_name,
             "node": self.node.to_json(),
         }
-        return json_string.encode("utf-8")

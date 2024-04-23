@@ -8,7 +8,7 @@ from server_pb2 import PublishRequest
 from file_manager import FileManager
 
 folder_path = "storage//provider"
-mutex_threads = list()
+mutex_threads = dict()
 
 
 class ContentProvider:
@@ -73,10 +73,12 @@ class ContentProvider:
             node=self.node,
             other_nodes=self.other_nodes,
             task=self.publish_content,
-            input=[file_name],
+            file_name=file_name,
         )
         mutex_thread.start()
-        mutex_threads.append(mutex_thread)
+        # will replace file_name with hash
+        mutex_threads[file_name] = mutex_thread
+        print(file_name)
 
     def publish_content(self, file_name):
         print(f"publish_content: {file_name}")
@@ -101,11 +103,13 @@ class ContentProvider:
             Exception(f"File '{file_name}' not found in the content provider folder.")
         return FileManager.read_file_content(folder_path, file_name)
 
-    def msg_handler(message, clientAddress):
+    def msg_handler(self, message, clientAddress):
         # response type: read the target from the msg
         # look for the thread send message to handle.
-
-        print(f"Message from {clientAddress}: {message}")
+        print(f"Message from {clientAddress}: {message.file_name}")
+        mutex_thread = mutex_threads.get(message.file_name)
+        if mutex_thread:
+            mutex_thread.handle_message(msg=message)
 
 
 if __name__ == "__main__":
