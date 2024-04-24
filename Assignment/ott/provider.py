@@ -1,6 +1,6 @@
 import json
 import grpc
-from data_structures import MutexNode
+from data_structures import MutexMessage, MutexNode
 from mutex_manager import MutexManager
 from communicator import Communicator
 from server_pb2_grpc import MediaLibraryStub
@@ -106,10 +106,21 @@ class ContentProvider:
     def msg_handler(self, message, clientAddress):
         # response type: read the target from the msg
         # look for the thread send message to handle.
-        print(f"Message from {clientAddress}: {message.file_name}")
+
         mutex_thread = mutex_threads.get(message.file_name)
         if mutex_thread:
             mutex_thread.handle_message(msg=message)
+        else:
+            print(f"Request msg revd => CS is not used. \n {message.node.to_json()}")
+            reply = MutexMessage(
+                type=2,
+                node=self.node,
+                msg="ok",
+                file_name=message.file_name,
+                timestamp=0,
+            )
+            self.communicator.send_msg(message.node, reply)
+            print(f"Reply Message Send. \n {reply.node.to_json()}")
 
 
 if __name__ == "__main__":
