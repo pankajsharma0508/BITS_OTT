@@ -1,5 +1,6 @@
 import json
 import grpc
+from hash_manager import HashManager
 from data_structures import MutexMessage, MutexNode
 from mutex_manager import MutexManager
 from communicator import Communicator
@@ -64,21 +65,27 @@ class ContentProvider:
                 )
                 if file_name.lower() == "exit":
                     break
+                content = FileManager.read_file_content(
+                    folder_path=folder_path, file_name=file_name
+                )
 
-                self.handle_user_request(file_name=file_name)
+                print(f"Calculating File hash for {file_name}.")
+                file_hash = HashManager.calculate_hash(file_content=content)
+                self.handle_user_request(file_name=file_name, file_hash=file_hash)
 
-    def handle_user_request(self, file_name):
+    def handle_user_request(self, file_name, file_hash):
         mutex_thread = MutexManager(
             communicator=self.communicator,
             node=self.node,
             other_nodes=self.other_nodes,
             task=self.publish_content,
             file_name=file_name,
+            file_hash=file_hash,
         )
         mutex_thread.start()
         # will replace file_name with hash
-        mutex_threads[file_name] = mutex_thread
-        print(file_name)
+        mutex_threads[file_hash] = mutex_thread
+        print(file_hash)
 
     def publish_content(self, file_name):
         print(f"publish_content: {file_name}")
@@ -107,7 +114,7 @@ class ContentProvider:
         # response type: read the target from the msg
         # look for the thread send message to handle.
 
-        mutex_thread = mutex_threads.get(message.file_name)
+        mutex_thread = mutex_threads.get(message.file_hash)
         if mutex_thread:
             mutex_thread.handle_message(msg=message)
         else:
@@ -115,8 +122,8 @@ class ContentProvider:
             reply = MutexMessage(
                 type=2,
                 node=self.node,
-                msg="ok",
                 file_name=message.file_name,
+                file_hash=message.file_hash,
                 timestamp=0,
             )
             self.communicator.send_msg(message.node, reply)

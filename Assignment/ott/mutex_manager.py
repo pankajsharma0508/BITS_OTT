@@ -13,7 +13,7 @@ delay_quantum = 5
 
 
 class MutexManager(Thread):
-    def __init__(self, communicator, node, other_nodes, task, file_name):
+    def __init__(self, communicator, node, other_nodes, task, file_name, file_hash):
         super().__init__(None, target=task, args=([file_name]))
         self.communicator = communicator
         self.request_pending = dict()
@@ -22,6 +22,7 @@ class MutexManager(Thread):
         self.node = node
         self.time_stamp = 1
         self.other_nodes = other_nodes
+        self.file_hash = file_hash
         self.file_name = file_name
         self.mutex_status = MUTEX_OPEN
 
@@ -35,8 +36,8 @@ class MutexManager(Thread):
                 reply = MutexMessage(
                     type=MSG_TYPE_REPLY,
                     node=self.node,
-                    msg="ok",
                     file_name=msg.file_name,
+                    file_hash=msg.file_hash,
                     timestamp=self.time_stamp,
                 )
                 self.send_msg(msg.node, reply)
@@ -85,15 +86,15 @@ class MutexManager(Thread):
 
     def request_cs(self):
         msg = MutexMessage(
-            1,
-            self.node,
-            f"request from {self.node.name}",
+            type=MSG_TYPE_REQUEST,
+            node=self.node,
             file_name=self.file_name,
+            file_hash=self.file_hash,
             timestamp=self.time_stamp,
         )
         for node in self.other_nodes:
             print(
-                f"### Requesting Critical Section({self.file_name}) From {node.name}.####"
+                f"### Requesting Critical Section({self.file_hash}) From {node.name}.####"
             )
             self.send_msg(node=node, message=msg)
             self.request_pending[node.name] = node
@@ -114,50 +115,9 @@ class MutexManager(Thread):
             reply = MutexMessage(
                 type=MSG_TYPE_REPLY,
                 node=self.node,
-                msg="ok",
                 file_name=request_msg.file_name,
+                file_hash=request_msg.file_hash,
                 timestamp=self.time_stamp,
             )
             self.send_msg(request_msg.node, reply)
         return
-
-
-# def printThreadName(name):
-#     print(name)
-
-
-# # node
-# current_node = MutexNode(ip="localhost", port=6000, name="P1")
-
-# # other_nodes
-# other_node1 = MutexNode(ip="localhost", port=6001, name="P2")
-# other_node2 = MutexNode(ip="localhost", port=6002, name="P3")
-
-# thread1 = MediaProvider(
-#     node=current_node,
-#     other_nodes=[other_node1, other_node2],
-#     task=printThreadName,
-#     input=["mythread1"],
-# )
-
-# # thread1 = threading.Thread(target=printThreadName, args=(["hello world"]))
-
-# thread2 = MediaProvider(
-#     node=other_node1,
-#     other_nodes=[current_node, other_node2],
-#     task=printThreadName,
-#     input=["mythread2"],
-# )
-
-
-# thread3 = MediaProvider(
-#     node=other_node1,
-#     other_nodes=[current_node, other_node2],
-#     task=printThreadName("mythread3"),
-# )
-# thread1.start()
-# thread2.start()
-# thread3.start()
-
-# thread1.join()
-# thread2.join()

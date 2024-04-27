@@ -58,27 +58,31 @@ class MutexNode:
 
 
 class MutexMessage:
-    def __init__(self, type, node, msg, file_name, timestamp):
-        self.msg = msg
+    def __init__(self, type, node, file_hash, file_name, timestamp):
         self.msg_type = type
         self.node = node
         self.file_name = file_name
+        self.file_hash = file_hash
         self.timestamp = timestamp
 
     @staticmethod
     def prepare(json):
         file_name = json["file_name"]
-        msg = json["msg"]
+        file_hash = json["file_hash"]
         msg_type = json["msg_type"]
         timestamp = json["timestamp"]
         node = MutexNode.prepare(json=json["node"])
         return MutexMessage(
-            msg=msg, node=node, type=msg_type, file_name=file_name, timestamp=timestamp
+            file_hash=file_hash,
+            node=node,
+            type=msg_type,
+            file_name=file_name,
+            timestamp=timestamp,
         )
 
     def to_json(self):
         return {
-            "msg": self.msg,
+            "file_hash": self.file_hash,
             "timestamp": self.timestamp,
             "msg_type": self.msg_type,
             "file_name": self.file_name,
