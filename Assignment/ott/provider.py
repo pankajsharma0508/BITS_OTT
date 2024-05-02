@@ -20,7 +20,7 @@ class ContentProvider:
         )
 
         self.init_user_interface()
-        self.start_rpc()
+        # self.start_rpc()
         return
 
     def init_node_data(self):
@@ -90,12 +90,15 @@ class ContentProvider:
     def publish_content(self, file_name):
         print(f"publish_content: {file_name}")
         try:
-            Read the content of the file
+            print(f"Connecting GRPC => {self.server_ip}:{self.server_port}")
+            channel = grpc.insecure_channel(f"{self.server_ip}:{self.server_port}")
+            media_library = MediaLibraryStub(channel)
+            # Read the content of the file
             content = self.read_file_if_exists(file_name)
 
-            Create request to publish content
+            # Create request to publish content
             request = PublishRequest(file_name=file_name, file_content=content)
-            response = self.media_library.publishContent(request)
+            response = media_library.publishContent(request)
             print(response)
 
         except grpc.RpcError as e:

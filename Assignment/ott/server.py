@@ -18,7 +18,7 @@ import socket
 media_library = list()
 # using ip address of current machine.
 ip = socket.gethostbyname(socket.gethostname())
-port_number = 6100
+port_number = 12000
 folder_path = "storage//server"
 
 ip_address = f"{ip}:{port_number}"
