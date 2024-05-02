@@ -1,5 +1,6 @@
 from concurrent import futures
 import grpc
+from hash_manager import HashManager
 import server_pb2_grpc
 from server_pb2 import (
     PublishResponse,
@@ -16,6 +17,7 @@ import socket
 # We assume that the port number for server to run is 6100.
 
 media_library = list()
+media_library_hash = list()
 # using ip address of current machine.
 ip = socket.gethostbyname(socket.gethostname())
 port_number = 12000
@@ -140,13 +142,24 @@ class MediaLibraryService(server_pb2_grpc.MediaLibraryServicer):
 
     def publishContent(self, request, context):
         logging.info(
-            f"Received File from content provider to be stored on server: {request.file_name}"
+            f"Received File from content provider  to be stored on server: {request.file_name}"
         )
-        FileManager.save_file_content(
-            folder_path, request.file_name, request.file_content
-        )
-        media_library.append(request.file_name)
-        return PublishResponse(response="done")
+        logging.info(f"Checking file with same content(hash) already exists on the server?")
+        file_hash = HashManager.calculate_hash(file_content=request.file_content)
+        if file_hash in media_library_hash:
+            logging.info("File already present on the server with the same content.")
+            return PublishResponse(response="File present on the server with same content")
+        else:
+            try:
+                FileManager.save_file_content(folder_path, request.file_name, request.file_content)
+                media_library.append(request.file_name)
+                media_library_hash.append(file_hash)
+                logging.info("File saved on the server.")
+                return PublishResponse(response="done")
+            except Exception as e:
+                logging.error(f"Error occurred while saving file: {str(e)}")
+                return PublishResponse(response="Error occurred while saving file")
+        
 
 
 if __name__ == "__main__":
