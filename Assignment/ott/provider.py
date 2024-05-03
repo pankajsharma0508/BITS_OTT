@@ -14,13 +14,13 @@ mutex_threads = dict()
 
 class ContentProvider:
     def __init__(self):
+        self.time_stamp = 1
         self.init_node_data()
         self.communicator = Communicator(
             self.node.ip, self.node.port, msg_handler=self.msg_handler
         )
 
         self.init_user_interface()
-        # self.start_rpc()
         return
 
     def init_node_data(self):
@@ -46,13 +46,9 @@ class ContentProvider:
                 else:
                     self.other_nodes.append(providerNode)
 
-    def start_rpc(self):
-        channel = grpc.insecure_channel(f"{self.server_ip}:{self.server_port}")
-        self.media_library = MediaLibraryStub(channel)
-
     def init_user_interface(self):
         print("########## This is a Provider Terminal ###################")
-        print(f"Provider ({self.node.name}) started at {self.node.ip}:{self.node.port}")
+        print(f"\nProvider ({self.node.name}) started at {self.node.ip}:{self.node.port}")
 
         while True:
             print("Following content files are ready to be published:")
@@ -69,11 +65,12 @@ class ContentProvider:
                     folder_path=folder_path, file_name=file_name
                 )
 
-                print(f"Calculating File hash for {file_name}.")
+                print(f"\n Calculating File hash for {file_name}.")
                 file_hash = HashManager.calculate_hash(file_content=content)
                 self.handle_user_request(file_name=file_name, file_hash=file_hash)
 
     def handle_user_request(self, file_name, file_hash):
+        self.time_stamp += 1
         mutex_thread = MutexManager(
             communicator=self.communicator,
             node=self.node,
@@ -81,6 +78,7 @@ class ContentProvider:
             task=self.publish_content,
             file_name=file_name,
             file_hash=file_hash,
+            time_stamp=self.time_stamp
         )
         mutex_thread.start()
         # will replace file_name with hash
@@ -90,7 +88,7 @@ class ContentProvider:
     def publish_content(self, file_name):
         print(f"publish_content: {file_name}")
         try:
-            print(f"Connecting GRPC => {self.server_ip}:{self.server_port}")
+            print(f"\nConnecting GRPC => {self.server_ip}:{self.server_port}")
             channel = grpc.insecure_channel(f"{self.server_ip}:{self.server_port}")
             media_library = MediaLibraryStub(channel)
             # Read the content of the file
@@ -120,7 +118,7 @@ class ContentProvider:
         if mutex_thread:
             mutex_thread.handle_message(msg=message)
         else:
-            print(f"Request msg revd => CS is not used. \n {message.node.to_json()}")
+            print(f"\nRequest msg revd => CS is not used. \n {message.node.to_json()}")
             reply = MutexMessage(
                 type=2,
                 node=self.node,
@@ -129,7 +127,7 @@ class ContentProvider:
                 timestamp=0,
             )
             self.communicator.send_msg(message.node, reply)
-            print(f"Reply Message Send. \n {reply.node.to_json()}")
+            print(f"\nReply Message Send. \n {reply.node.to_json()}")
 
 
 if __name__ == "__main__":

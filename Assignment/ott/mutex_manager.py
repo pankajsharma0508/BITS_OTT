@@ -13,14 +13,14 @@ delay_quantum = 5
 
 
 class MutexManager(Thread):
-    def __init__(self, communicator, node, other_nodes, task, file_name, file_hash):
+    def __init__(self, communicator, node, other_nodes, task, file_name, file_hash, time_stamp):
         super().__init__(None, target=task, args=([file_name]))
         self.communicator = communicator
         self.request_pending = dict()
         self.msg_queue = Queue()
         self.delay = delay_quantum
         self.node = node
-        self.time_stamp = 1
+        self.time_stamp = time_stamp
         self.other_nodes = other_nodes
         self.file_hash = file_hash
         self.file_name = file_name
@@ -94,7 +94,7 @@ class MutexManager(Thread):
         )
         for node in self.other_nodes:
             print(
-                f"### Requesting Critical Section({self.file_hash}) From {node.name}.####"
+                f"\n### Requesting Critical Section({self.file_hash}) From {node.name}.####"
             )
             self.send_msg(node=node, message=msg)
             self.request_pending[node.name] = node
@@ -102,7 +102,7 @@ class MutexManager(Thread):
     def ensure_all_response(self):
         while True:
             if self.request_pending:
-                print(f"request_pending for {self.request_pending.keys()}")
+                print(f"\nrequest_pending for {self.request_pending.keys()}")
                 time.sleep(delay_quantum)
             else:
                 print(f"****No pending requests***")

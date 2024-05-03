@@ -9,7 +9,7 @@ class Communicator:
         self.ip = ip
         self.port = int(port)
         self.msg_handler = msg_handler
-        print(f"Communicator Started at {ip}:{port}")
+        print(f"\nCommunicator Started at {ip}:{port}")
         listener = threading.Thread(target=self.listen_msg)
         listener.start()
         return
